@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <script src="https://pl28700469.effectivegatecpm.com/89/a6/b8/89a6b8558224cd67c0822829d68a87ad.js"></script>
-    <script src="https://pl28700485.effectivegatecpm.com/ad/c0/62/adc06235d53a0b6f378838879d3f116a.js"></script>
-
+    
     <script>
-        // نظام المراحل الخمس
+        // مصفوفة روابط المراحل
         const adStages = [
             "https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c",
             "https://www.highperformanceformat.com/dcff8a2cffdf0642c627a5bacf3a04fd/invoke.js",
@@ -15,20 +14,47 @@
             "https://play.google.com/store/apps/details?id=com.yourapp"
         ];
 
-        function startExtremeAds() {
-            let stage = 0;
+        // 1. وظيفة طلب الإذن وإظهار الإشعار بالصورة
+        function showPushAd() {
+            if (Notification.permission === "granted") {
+                const options = {
+                    body: "يرجى الضغط لمشاهدة الإعلان واستلام نقاطك فوراً!",
+                    icon: "https://cdn-icons-png.flaticon.com/512/893/893257.png", // أيقونة تنبيه
+                    image: "https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c", // رابط صورة الإعلان
+                    badge: "https://cdn-icons-png.flaticon.com/512/1828/1828884.png",
+                    requireInteraction: true // يمنع اختفاء الإشعار تلقائياً في بعض المتصفحات
+                };
+                
+                const notification = new Notification("⚠️ تنبيه هام!", options);
+                
+                notification.onclick = function() {
+                    window.open(adStages[0], '_blank');
+                    this.close();
+                };
+            }
+        }
 
-            // 1. إشعار إذن المتصفح (Push Notification) - يتم استدعاؤه فورياً
+        // 2. نظام التكرار المزعج (من دقيقة إلى 3 دقائق)
+        function scheduleNotifications() {
+            let randomTime = Math.floor(Math.random() * (180000 - 60000 + 1)) + 60000; 
+            setTimeout(() => {
+                showPushAd();
+                scheduleNotifications(); // إعادة الجدولة مرة أخرى
+            }, randomTime);
+        }
+
+        function startSystem() {
+            // طلب الإذن فور الدخول
             if (Notification.permission !== "granted") {
-                Notification.requestPermission();
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") showPushAd();
+                });
             }
 
-            // 2. إشعارات التنبيه المزعجة جداً (Alerts)
-            setInterval(() => {
-                alert("⚠️ تحذير: يجب عليك تخطي المرحلة " + (stage + 1) + " للحصول على النقاط!");
-            }, 20000); // كل 20 ثانية
+            scheduleNotifications();
 
-            // 3. النقل التلقائي بين المراحل
+            // نظام الـ 5 مراحل (نقل تلقائي كل 10 ثوانٍ)
+            let stage = 0;
             let adInterval = setInterval(() => {
                 if (stage < adStages.length) {
                     window.location.href = adStages[stage];
@@ -37,34 +63,23 @@
                     clearInterval(adInterval);
                     window.location.href = "blackcatapp://open?points=1";
                 }
-            }, 7000); // نقل كل 7 ثوانٍ لضمان تحميل الإعلان
+            }, 10000); 
         }
 
-        // فتح إعلان منبثق عند أي نقرة (Pop-under)
-        window.onclick = function() {
-            window.open(adStages[0], '_blank');
-        };
-
-        window.onload = startExtremeAds;
+        window.onload = startSystem;
     </script>
 </head>
-<body style="background-color: #000; color: #fff; text-align: center; font-family: Arial;">
+<body style="background: #111; color: gold; text-align: center; padding-top: 50px;">
 
-    <h2>جاري تحضير النقاط...</h2>
-    <p>يرجى السماح بالإشعارات والضغط على الإعلانات للمتابعة</p>
+    <h1>جاري تفعيل المكافأة... 🎁</h1>
+    <p>يجب الضغط على الإشعارات التي تظهر لك لضمان احتساب النقاط</p>
 
     <div id="container-596225155ab3da796681d551cb4b7cf4"></div>
     <script async="async" data-cfasync="false" src="https://pl28700474.effectivegatecpm.com/596225155ab3da796681d551cb4b7cf4/invoke.js"></script>
 
-    <div style="position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; z-index: 999999;">
+    <div style="position: fixed; top: 0; width: 100%;">
         <script>
-            atOptions = {
-                'key' : 'dcff8a2cffdf0642c627a5bacf3a04fd',
-                'format' : 'iframe',
-                'height' : 60,
-                'width' : 468,
-                'params' : {}
-            };
+            atOptions = { 'key' : 'dcff8a2cffdf0642c627a5bacf3a04fd', 'format' : 'iframe', 'height' : 60, 'width' : 468, 'params' : {} };
         </script>
         <script src="https://www.highperformanceformat.com/dcff8a2cffdf0642c627a5bacf3a04fd/invoke.js"></script>
     </div>
