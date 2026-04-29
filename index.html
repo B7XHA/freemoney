@@ -40,15 +40,15 @@
         
         h1 {
             color: #ffd700;
-            font-size: 3em;
+            font-size: 2.5em;
             margin-bottom: 20px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
         
         .step-number {
             color: white;
-            font-size: 1.2em;
-            margin-bottom: 30px;
+            font-size: 1.1em;
+            margin-bottom: 20px;
         }
         
         .points {
@@ -61,7 +61,7 @@
             display: inline-block;
         }
         
-        .next-btn {
+        .next-btn, .restart-btn {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
@@ -75,7 +75,7 @@
             display: inline-block;
         }
         
-        .next-btn:hover {
+        .next-btn:hover, .restart-btn:hover {
             transform: scale(1.05);
         }
         
@@ -85,7 +85,10 @@
         
         .ad-container {
             margin: 20px 0;
-            min-height: 100px;
+            min-height: 150px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 15px;
         }
         
         /* نافذة منبثقة مزعجة */
@@ -95,7 +98,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.95);
             z-index: 9999;
             display: flex;
             justify-content: center;
@@ -114,7 +117,7 @@
             padding: 30px;
             text-align: center;
             max-width: 90%;
-            width: 400px;
+            width: 350px;
         }
         
         .popup-content h3 {
@@ -148,6 +151,7 @@
             z-index: 10000;
             animation: slideIn 0.5s ease, fadeOut 5s ease 3s forwards;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            cursor: pointer;
         }
         
         @keyframes slideIn {
@@ -167,7 +171,7 @@
             background: #27ae60;
         }
         
-        /* عداد تنازلي مزعج */
+        /* عداد تنازلي */
         .countdown {
             position: fixed;
             bottom: 20px;
@@ -185,38 +189,76 @@
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
         }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #ffd700, #ff9800);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .open-app-btn {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            font-size: 1.3em;
+            padding: 15px 40px;
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
 
 <div class="container" id="mainContainer">
     <div class="points" id="pointsDisplay">⭐ النقاط: 0</div>
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
     <h1 id="stepTitle">الخطوة 1</h1>
     <div class="step-number" id="stepDesc">شاهد الإعلان لمدة 5 ثواني</div>
     
     <div class="ad-container" id="adContainer"></div>
     
     <button class="next-btn" id="nextBtn" onclick="nextStep()">التالي</button>
+    <button class="restart-btn hidden" id="restartBtn" onclick="restart()">🔄 ربح نقطة جديدة</button>
 </div>
 
 <script>
     // ========== إعدادات ==========
     let currentStep = 1;
-    let totalSteps = 8; // 8 خطوات
+    let totalSteps = 5;
     let canProceed = false;
     let countdownInterval = null;
     
+    // اسم التطبيق (Deep Link)
+    const APP_SCHEME = "myapp://open?points=";
+    const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.my.newproject2";
+    
     // كودات الإعلانات
     const ads = {
-        1: `<!-- إعلان 1 - مزعج -->
+        1: `<center><font color='white' size='3'>📺 إعلان 1/5</font></center>
 <script src="https://pl28700469.effectivegatecpm.com/89/a6/b8/89a6b8558224cd67c0822829d68a87ad.js"><\/script>
-<center><font color='white' size='2'>انتظر 5 ثواني... إعلان</font></center>`,
+<center><font color='#ffd700' size='2'>⏳ انتظر 5 ثواني...</font></center>`,
         
-        2: `<script async="async" data-cfasync="false" src="https://pl28700474.effectivegatecpm.com/596225155ab3da796681d551cb4b7cf4/invoke.js"><\/script>
+        2: `<center><font color='white' size='3'>📱 إعلان 2/5</font></center>
+<script async="async" data-cfasync="false" src="https://pl28700474.effectivegatecpm.com/596225155ab3da796681d551cb4b7cf4/invoke.js"><\/script>
 <div id="container-596225155ab3da796681d551cb4b7cf4"></div>
-<center><font color='white' size='2'>⏳ إعلان فيديو - لا تغلق الصفحة</font></center>`,
+<center><font color='#ffd700' size='2'>🎯 إعلان فيديو...</font></center>`,
         
-        3: `<script>
+        3: `<center><font color='white' size='3'>🎮 إعلان 3/5</font></center>
+<script>
 atOptions = {
     'key' : 'dcff8a2cffdf0642c627a5bacf3a04fd',
     'format' : 'iframe',
@@ -226,12 +268,14 @@ atOptions = {
 };
 <\/script>
 <script src="https://www.highperformanceformat.com/dcff8a2cffdf0642c627a5bacf3a04fd/invoke.js"><\/script>
-<center><font color='white' size='2'>🎯 إعلان تفاعلي - انتظر قليلاً</font></center>`,
+<center><font color='#ffd700' size='2'>🔥 إعلان تفاعلي...</font></center>`,
         
-        4: `<script src="https://pl28700485.effectivegatecpm.com/ad/c0/62/adc06235d53a0b6f378838879d3f116a.js"><\/script>
-<center><font color='white' size='2'>📺 إعلان فيديو - 5 ثواني متبقية</font></center>`,
+        4: `<center><font color='white' size='3'>🎁 إعلان 4/5 - أخيراً!</font></center>
+<script src="https://pl28700485.effectivegatecpm.com/ad/c0/62/adc06235d53a0b6f378838879d3f116a.js"><\/script>
+<center><font color='#ffd700' size='2'>⭐ كدت تنتهي! انتظر قليلاً...</font></center>`,
         
-        5: `<script>
+        5: `<center><font color='white' size='3'>🎉 الخطوة الأخيرة! 🎉</font></center>
+<script>
 atOptions = {
     'key' : '0b7539a5227dc7b69da2ea94b0521ab6',
     'format' : 'iframe',
@@ -241,59 +285,43 @@ atOptions = {
 };
 <\/script>
 <script src="https://www.highperformanceformat.com/0b7539a5227dc7b69da2ea94b0521ab6/invoke.js"><\/script>
-<center><font color='white' size='2'>📱 إعلان - يرجى الانتظار</font></center>`,
-        
-        6: `<!-- إعلان 6 -->
-<iframe src="https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c" width="100%" height="250" style="border:none;"></iframe>
-<center><font color='white' size='2'>⚠️ إعلان هام - لا تغلق النافذة</font></center>`,
-        
-        7: `<!-- إعلان 7 -->
-<script src="https://pl28700469.effectivegatecpm.com/89/a6/b8/89a6b8558224cd67c0822829d68a87ad.js"><\/script>
-<script>
-// إعلان منبثق
-setTimeout(() => {
-    window.open('https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c', '_blank');
-}, 1000);
-<\/script>
-<center><font color='white' size='2'>🔥 سيتم فتح نافذة جديدة للحصول على النقطة</font></center>`,
-        
-        8: `<!-- إعلان 8 - الأخير -->
-<center>
-<font color='white' size='4'>🎉 الخطوة الأخيرة 🎉</font><br>
-<font color='#ffd700' size='3'>اضغط "التالي" للحصول على النقطة</font>
-</center>
-<div style="margin: 20px;">
-<iframe src="https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c" width="100%" height="250" style="border:none;"></iframe>
-</div>`
+<center><font color='#ffd700' size='3'>✅ اضغط "التالي" للحصول على النقطة!</font></center>`
     };
     
-    // ========== دوال مزعجة ==========
+    // ========== دوال الإشعارات ==========
     
-    // عرض نافذة منبثقة مزعجة
-    function showPopup(message, url) {
-        const popup = document.createElement('div');
-        popup.className = 'popup-overlay';
-        popup.innerHTML = `
-            <div class="popup-content">
-                <h3>⚠️ تنبيه مهم!</h3>
-                <p>${message}</p>
-                <button onclick="this.parentElement.parentElement.remove()">إغلاق</button>
-            </div>
-        `;
-        document.body.appendChild(popup);
-        
-        if(url) {
-            setTimeout(() => {
-                window.open(url, '_blank');
-            }, 500);
+    // طلب إذن الإشعارات
+    function requestNotificationPermission() {
+        if ('Notification' in window) {
+            if (Notification.permission === 'default') {
+                Notification.requestPermission().then(perm => {
+                    if (perm === 'granted') {
+                        showSystemNotification('✅ تم تفعيل الإشعارات!', 'ستصلك العروض الحصرية');
+                    }
+                });
+            }
         }
     }
     
-    // عرض إشعار منبثق
+    // عرض إشعار نظام
+    function showSystemNotification(title, body) {
+        if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification(title, {
+                body: body,
+                icon: 'https://i.imgur.com/7x8q3kD.jpg',
+                silent: false
+            });
+        }
+    }
+    
+    // عرض إشعار وهمي
     function showNotification(message, type = 'warning') {
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
         notification.innerHTML = message;
+        notification.onclick = () => {
+            window.open('https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c', '_blank');
+        };
         document.body.appendChild(notification);
         
         setTimeout(() => {
@@ -301,46 +329,60 @@ setTimeout(() => {
         }, 5000);
     }
     
-    // طلب إذن الإشعارات
-    function requestNotificationPermission() {
-        if (Notification.permission === 'default') {
-            Notification.requestPermission().then(perm => {
-                if (perm === 'granted') {
-                    new Notification('🔔 من Redeeed', {
-                        body: 'عروض حصرية تنتظرك! اضغط هنا',
-                        icon: 'https://i.imgur.com/7x8q3kD.jpg'
-                    });
-                }
-            });
-        }
+    // عرض نافذة منبثقة
+    function showPopup(message, url) {
+        const popup = document.createElement('div');
+        popup.className = 'popup-overlay';
+        popup.innerHTML = `
+            <div class="popup-content">
+                <h3>⚠️ عرض حصري!</h3>
+                <p>${message}</p>
+                <button onclick="this.parentElement.parentElement.remove(); window.open('${url}', '_blank');">موافق</button>
+            </div>
+        `;
+        document.body.appendChild(popup);
     }
     
-    // عرض إشعار وهمي كل 10 ثواني
-    function startFakeNotifications() {
-        setInterval(() => {
-            showNotification('🎁 عرض حصري! اضغط هنا لربح 1000 نقطة إضافية!');
-            showPopup('فرصة ذهبية! اضغط للموافقة', 'https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c');
-        }, 10000);
-    }
+    // ========== دوال فتح التطبيق وإضافة النقاط ==========
     
-    // فتح نافذة منبثقة مزعجة تلقائيًا
-    function openAnnoyingPopup() {
-        setInterval(() => {
-            window.open('https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c', '_blank');
-        }, 15000);
-    }
-    
-    // عرض Points
+    // عرض النقاط
     function updatePointsDisplay() {
-        let points = localStorage.getItem('points') || 0;
+        let points = localStorage.getItem('redeeed_points') || 0;
         document.getElementById('pointsDisplay').innerHTML = `⭐ النقاط: ${points}`;
+        return parseInt(points);
+    }
+    
+    // إضافة نقطة
+    function addPoint() {
+        let points = localStorage.getItem('redeeed_points') || 0;
+        points = parseInt(points) + 1;
+        localStorage.setItem('redeeed_points', points);
+        updatePointsDisplay();
+        return points;
+    }
+    
+    // فتح التطبيق (الطريقة الصحيحة)
+    function openApp(points) {
+        // المحاولة الأولى: فتح التطبيق مباشرة بـ Deep Link
+        window.location.href = `${APP_SCHEME}${points}`;
+        
+        // بعد ثانيتين، إذا ما فتح التطبيق، حول إلى متجر جوجل
+        setTimeout(function() {
+            window.location.href = PLAY_STORE_URL;
+        }, 2000);
     }
     
     // ========== منطق الخطوات ==========
     
+    function updateProgress() {
+        const percent = ((currentStep - 1) / totalSteps) * 100;
+        document.getElementById('progressFill').style.width = `${percent}%`;
+    }
+    
     function loadStep(step) {
         canProceed = false;
-        document.getElementById('stepTitle').innerHTML = `الخطوة ${step}`;
+        updateProgress();
+        document.getElementById('stepTitle').innerHTML = `الخطوة ${step} من ${totalSteps}`;
         document.getElementById('stepDesc').innerHTML = `شاهد الإعلان لمدة 5 ثواني`;
         
         // تحميل الإعلان
@@ -359,11 +401,11 @@ setTimeout(() => {
             document.body.appendChild(newScript);
         }
         
-        // إظهار إعلانات منبثقة مزعجة
-        if(step === 3 || step === 5 || step === 7) {
+        // إعلانات منبثقة مزعجة
+        if(step === 2 || step === 4) {
             setTimeout(() => {
                 showPopup('تهانينا! لقد فزت بجائزة! اضغط للموافقة', 'https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c');
-                showNotification('🎉 فزت بـ 500 نقطة! اضغط للاستلام', 'success');
+                showNotification('🎉 عرض خاص! اضغط هنا لربح نقاط إضافية', 'success');
             }, 2000);
         }
         
@@ -395,7 +437,7 @@ setTimeout(() => {
     
     function nextStep() {
         if(!canProceed && currentStep < totalSteps) {
-            showPopup('⚠️ لا يمكنك تخطي الإعلان! انتظر حتى ينتهي', null);
+            showPopup('⚠️ لا يمكنك تخطي الإعلان! انتظر حتى ينتهي', '#');
             showNotification('انتظر حتى ينتهي الإعلان!', 'warning');
             return;
         }
@@ -405,35 +447,37 @@ setTimeout(() => {
             loadStep(currentStep);
         } else if(currentStep === totalSteps) {
             // إضافة النقطة
-            let points = localStorage.getItem('points') || 0;
-            points = parseInt(points) + 1;
-            localStorage.setItem('points', points);
-            updatePointsDisplay();
+            const newPoints = addPoint();
             
             // عرض رسالة النجاح
             document.getElementById('stepTitle').innerHTML = '🎉 تهانينا! 🎉';
-            document.getElementById('stepDesc').innerHTML = `تمت إضافة نقطة جديدة! إجمالي نقاطك: ${points}`;
+            document.getElementById('stepDesc').innerHTML = `تمت إضافة نقطة جديدة! إجمالي نقاطك: ${newPoints}`;
             document.getElementById('adContainer').innerHTML = `
                 <div style="text-align: center;">
                     <font color="#ffd700" size="5">✅ تمت إضافة النقطة بنجاح ✅</font><br><br>
-                    <font color="white">إجمالي النقاط: ${points}</font><br><br>
-                    <button class="next-btn finish-btn" onclick="restart()">🔄 ربح نقطة أخرى</button>
+                    <font color="white" size="4">إجمالي النقاط: ${newPoints}</font><br><br>
+                    <font color="#ffd700">✨ جاري فتح التطبيق... ✨</font>
                 </div>
             `;
             document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('restartBtn').classList.remove('hidden');
             
-            // إرسال إشعار
-            new Notification('🎉 ربحت نقطة!', {
-                body: `لديك الآن ${points} نقطة في حسابك`,
-                icon: 'https://i.imgur.com/7x8q3kD.jpg'
-            });
+            // إشعار النجاح
+            showSystemNotification('🎉 ربحت نقطة!', `لديك الآن ${newPoints} نقطة في حسابك`);
+            
+            // فتح التطبيق بعد ثانية ونصف
+            setTimeout(function() {
+                openApp(newPoints);
+            }, 1500);
         }
     }
     
     function restart() {
         currentStep = 1;
-        loadStep(1);
+        canProceed = false;
         document.getElementById('nextBtn').style.display = 'inline-block';
+        document.getElementById('restartBtn').classList.add('hidden');
+        loadStep(1);
     }
     
     // ========== بدء التشغيل ==========
@@ -442,29 +486,27 @@ setTimeout(() => {
     requestNotificationPermission();
     
     // بدء الإعلانات المزعجة
-    startFakeNotifications();
-    openAnnoyingPopup();
-    
-    // عرض إعلان عند تحميل الصفحة
-    setTimeout(() => {
-        showPopup('عرض خاص! اضغط للموافقة على تلقي الإشعارات', 'https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c');
-    }, 3000);
-    
-    // عرض إعلانات متكررة
     setInterval(() => {
         if(currentStep < totalSteps) {
             showNotification('⚡ إعلان سريع! اضغط هنا لربح نقاط إضافية', 'warning');
         }
-    }, 25000);
+    }, 20000);
+    
+    // إعلان منبثق كل 30 ثانية
+    setInterval(() => {
+        if(currentStep < totalSteps) {
+            showPopup('فرصة ذهبية! اضغط للموافقة على تلقي العروض', 'https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c');
+        }
+    }, 30000);
     
     // تحميل الخطوة الأولى
     loadStep(1);
     updatePointsDisplay();
     
-    // منع الخروج من الصفحة بسهولة
+    // منع الخروج بسهولة
     window.onbeforeunload = function() {
-        if(currentStep < totalSteps) {
-            return "⚠️ إذا غادرت الآن، ستفقد تقدمك في الإعلانات!";
+        if(currentStep < totalSteps && canProceed === false) {
+            return "⚠️ إذا غادرت الآن، ستفقد تقدمك!";
         }
     };
 </script>
