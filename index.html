@@ -1,88 +1,246 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <script src="https://pl28700469.effectivegatecpm.com/89/a6/b8/89a6b8558224cd67c0822829d68a87ad.js"></script>
-    
-    <script>
-        // مصفوفة روابط المراحل
-        const adStages = [
-            "https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c",
-            "https://www.highperformanceformat.com/dcff8a2cffdf0642c627a5bacf3a04fd/invoke.js",
-            "https://pl28700474.effectivegatecpm.com/596225155ab3da796681d551cb4b7cf4/invoke.js",
-            "https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c",
-            "https://play.google.com/store/apps/details?id=com.yourapp"
-        ];
-
-        // 1. وظيفة طلب الإذن وإظهار الإشعار بالصورة
-        function showPushAd() {
-            if (Notification.permission === "granted") {
-                const options = {
-                    body: "يرجى الضغط لمشاهدة الإعلان واستلام نقاطك فوراً!",
-                    icon: "https://cdn-icons-png.flaticon.com/512/893/893257.png", // أيقونة تنبيه
-                    image: "https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c", // رابط صورة الإعلان
-                    badge: "https://cdn-icons-png.flaticon.com/512/1828/1828884.png",
-                    requireInteraction: true // يمنع اختفاء الإشعار تلقائياً في بعض المتصفحات
-                };
-                
-                const notification = new Notification("⚠️ تنبيه هام!", options);
-                
-                notification.onclick = function() {
-                    window.open(adStages[0], '_blank');
-                    this.close();
-                };
-            }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>شحن نقاط | Redeeed</title>
+    <style>
+        /* التنسيقات العامة */
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #0f0c29;
+            background: linear-gradient(to bottom, #24243e, #302b63, #0f0c29);
+            color: white;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
         }
-
-        // 2. نظام التكرار المزعج (من دقيقة إلى 3 دقائق)
-        function scheduleNotifications() {
-            let randomTime = Math.floor(Math.random() * (180000 - 60000 + 1)) + 60000; 
-            setTimeout(() => {
-                showPushAd();
-                scheduleNotifications(); // إعادة الجدولة مرة أخرى
-            }, randomTime);
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+            z-index: 10;
         }
-
-        function startSystem() {
-            // طلب الإذن فور الدخول
-            if (Notification.permission !== "granted") {
-                Notification.requestPermission().then(permission => {
-                    if (permission === "granted") showPushAd();
-                });
-            }
-
-            scheduleNotifications();
-
-            // نظام الـ 5 مراحل (نقل تلقائي كل 10 ثوانٍ)
-            let stage = 0;
-            let adInterval = setInterval(() => {
-                if (stage < adStages.length) {
-                    window.location.href = adStages[stage];
-                    stage++;
-                } else {
-                    clearInterval(adInterval);
-                    window.location.href = "blackcatapp://open?points=1";
-                }
-            }, 10000); 
+        .points-box {
+            background: #ffd700;
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px #ffd700;
         }
-
-        window.onload = startSystem;
-    </script>
+        .ad-slot {
+            background: rgba(0,0,0,0.5);
+            min-height: 250px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .btn {
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            padding: 15px 40px;
+            color: white;
+            border-radius: 50px;
+            font-size: 18px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+        .btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        /* تنبيهات الإشعارات الوهمية */
+        .fake-notif {
+            position: fixed;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            color: #333;
+            width: 90%;
+            max-width: 400px;
+            padding: 15px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: 0.5s;
+            z-index: 10000;
+            cursor: pointer;
+        }
+        .fake-notif.show { top: 20px; }
+        .fake-notif img { width: 50px; height: 50px; border-radius: 10px; margin-left: 15px; }
+    </style>
 </head>
-<body style="background: #111; color: gold; text-align: center; padding-top: 50px;">
+<body>
 
-    <h1>جاري تفعيل المكافأة... 🎁</h1>
-    <p>يجب الضغط على الإشعارات التي تظهر لك لضمان احتساب النقاط</p>
-
-    <div id="container-596225155ab3da796681d551cb4b7cf4"></div>
-    <script async="async" data-cfasync="false" src="https://pl28700474.effectivegatecpm.com/596225155ab3da796681d551cb4b7cf4/invoke.js"></script>
-
-    <div style="position: fixed; top: 0; width: 100%;">
-        <script>
-            atOptions = { 'key' : 'dcff8a2cffdf0642c627a5bacf3a04fd', 'format' : 'iframe', 'height' : 60, 'width' : 468, 'params' : {} };
-        </script>
-        <script src="https://www.highperformanceformat.com/dcff8a2cffdf0642c627a5bacf3a04fd/invoke.js"></script>
+<div id="fakeNotif" class="fake-notif" onclick="triggerAd()">
+    <img src="https://cdn-icons-png.flaticon.com/512/893/893257.png" alt="">
+    <div>
+        <strong style="display:block">⚠️ ربح سريع!</strong>
+        <span>اضغط هنا لمشاهدة إعلان والحصول على 5 نقاط إضافية!</span>
     </div>
+</div>
+
+<div class="container">
+    <div class="points-box" id="pointsDisplay">⭐ نقاطك: 0</div>
+    <h2 id="stepTitle">المرحلة 1/5</h2>
+    <p id="timerText">انتظر 10 ثوانٍ لتخطي الإعلان...</p>
+    
+    <div class="ad-slot" id="adContainer">
+        </div>
+
+    <button id="mainBtn" class="btn" onclick="handleMainAction()">ابدأ الآن</button>
+</div>
+
+<script>
+    let currentStep = 0;
+    const totalSteps = 5;
+    let secondsLeft = 10;
+    let isReady = false;
+    const APP_PACKAGE = "com.my.newproject2";
+
+    const adsData = [
+        { key: '89a6b8558224cd67c0822829d68a87ad', type: 'script', src: 'https://pl28700469.effectivegatecpm.com/89/a6/b8/89a6b8558224cd67c0822829d68a87ad.js' },
+        { key: '596225155ab3da796681d551cb4b7cf4', type: 'container' },
+        { key: 'dcff8a2cffdf0642c627a5bacf3a04fd', type: 'iframe' },
+        { key: 'adc06235d53a0b6f378838879d3f116a', type: 'script', src: 'https://pl28700485.effectivegatecpm.com/ad/c0/62/adc06235d53a0b6f378838879d3f116a.js' },
+        { key: '0b7539a5227dc7b69da2ea94b0521ab6', type: 'iframe' }
+    ];
+
+    function updatePoints() {
+        let p = localStorage.getItem('user_pts') || 0;
+        document.getElementById('pointsDisplay').innerText = `⭐ نقاطك: ${p}`;
+    }
+
+    // طلب الإشعارات + بدء المراحل
+    function handleMainAction() {
+        if (currentStep === 0) {
+            // طلب إذن الإشعارات الحقيقي عند أول ضغطة
+            Notification.requestPermission().then(perm => {
+                if(perm === 'granted') {
+                    new Notification("✅ تم التفعيل", { body: "ستصلك إشعارات النقاط هنا" });
+                }
+            });
+            startStep();
+        } else if (isReady) {
+            startStep();
+        } else {
+            triggerAd();
+        }
+    }
+
+    function startStep() {
+        if (currentStep >= totalSteps) {
+            finish();
+            return;
+        }
+
+        currentStep++;
+        isReady = false;
+        secondsLeft = 10;
+        
+        document.getElementById('stepTitle').innerText = `المرحلة ${currentStep}/5`;
+        document.getElementById('mainBtn').innerText = "انتظر...";
+        document.getElementById('mainBtn').disabled = true;
+
+        loadAd(currentStep - 1);
+
+        let countdown = setInterval(() => {
+            secondsLeft--;
+            document.getElementById('timerText').innerText = `انتظر ${secondsLeft} ثوانٍ لتخطي الإعلان...`;
+            
+            if (secondsLeft <= 0) {
+                clearInterval(countdown);
+                isReady = true;
+                document.getElementById('mainBtn').disabled = false;
+                document.getElementById('mainBtn').innerText = currentStep === totalSteps ? "استلام النقاط" : "تخطي إلى المرحلة التالية";
+                document.getElementById('timerText').innerText = "✅ يمكنك التخطي الآن";
+            }
+        }, 1000);
+    }
+
+    function loadAd(index) {
+        const container = document.getElementById('adContainer');
+        container.innerHTML = "";
+        const ad = adsData[index];
+
+        if (ad.type === 'container') {
+            const div = document.createElement('div');
+            div.id = `container-${ad.key}`;
+            container.appendChild(div);
+            const s = document.createElement('script');
+            s.async = true;
+            s.src = `https://pl28700474.effectivegatecpm.com/${ad.key}/invoke.js`;
+            document.body.appendChild(s);
+        } else if (ad.type === 'iframe') {
+            const s1 = document.createElement('script');
+            s1.innerHTML = `atOptions = { 'key' : '${ad.key}', 'format' : 'iframe', 'height' : 300, 'width' : 160, 'params' : {} };`;
+            const s2 = document.createElement('script');
+            s2.src = `https://www.highperformanceformat.com/${ad.key}/invoke.js`;
+            container.appendChild(s1);
+            container.appendChild(s2);
+        } else {
+            const s = document.createElement('script');
+            s.src = ad.src;
+            container.appendChild(s);
+        }
+    }
+
+    function triggerAd() {
+        window.open("https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c", "_blank");
+    }
+
+    function finish() {
+        let p = parseInt(localStorage.getItem('user_pts') || 0);
+        localStorage.setItem('user_pts', p + 1);
+        updatePoints();
+        
+        alert("🎉 مبروك! تمت إضافة نقطة بنجاح.");
+        
+        // الانتقال للتطبيق
+        window.location.href = `intent://#Intent;package=${APP_PACKAGE};scheme=app;end`;
+        setTimeout(() => {
+            window.location.href = `https://play.google.com/store/apps/details?id=${APP_PACKAGE}`;
+        }, 1000);
+    }
+
+    // نظام الإشعارات المزعجة (كل دقيقتين)
+    setInterval(() => {
+        const notif = document.getElementById('fakeNotif');
+        notif.classList.add('show');
+        
+        // إشعار نظام حقيقي إذا سمح المستخدم
+        if (Notification.permission === "granted") {
+            new Notification("🎁 مفاجأة لك!", {
+                body: "اضغط للحصول على نقاط مضاعفة الآن",
+                icon: "https://cdn-icons-png.flaticon.com/512/1828/1828884.png"
+            }).onclick = () => triggerAd();
+        }
+
+        setTimeout(() => notif.classList.remove('show'), 10000);
+    }, 120000); // كل 120 ثانية
+
+    updatePoints();
+</script>
 
 </body>
 </html>
