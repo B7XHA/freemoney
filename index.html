@@ -2,514 +2,72 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>ربح النقاط - Redeeed</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Cairo', 'Tahoma', sans-serif;
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        
-        .container {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 30px;
-            padding: 40px;
-            text-align: center;
-            max-width: 500px;
-            width: 100%;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            animation: fadeIn 0.5s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        
-        h1 {
-            color: #ffd700;
-            font-size: 2.5em;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        
-        .step-number {
-            color: white;
-            font-size: 1.1em;
-            margin-bottom: 20px;
-        }
-        
-        .points {
-            background: rgba(0,0,0,0.5);
-            padding: 10px 20px;
-            border-radius: 50px;
-            color: #ffd700;
-            font-size: 1.2em;
-            margin-bottom: 30px;
-            display: inline-block;
-        }
-        
-        .next-btn, .restart-btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 15px 50px;
-            border-radius: 50px;
-            font-size: 1.2em;
-            cursor: pointer;
-            margin-top: 30px;
-            transition: transform 0.2s;
-            text-decoration: none;
-            display: inline-block;
-        }
-        
-        .next-btn:hover, .restart-btn:hover {
-            transform: scale(1.05);
-        }
-        
-        .finish-btn {
-            background: linear-gradient(135deg, #11998e, #38ef7d);
-        }
-        
-        .ad-container {
-            margin: 20px 0;
-            min-height: 150px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 15px;
-            padding: 15px;
-        }
-        
-        /* نافذة منبثقة مزعجة */
-        .popup-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.95);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            animation: popupFade 0.3s ease;
-        }
-        
-        @keyframes popupFade {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        .popup-content {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
-            max-width: 90%;
-            width: 350px;
-        }
-        
-        .popup-content h3 {
-            color: #e74c3c;
-            margin-bottom: 15px;
-        }
-        
-        .popup-content p {
-            color: #333;
-            margin-bottom: 20px;
-        }
-        
-        .popup-content button {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 10px 30px;
-            border-radius: 50px;
-            cursor: pointer;
-        }
-        
-        /* إشعار منبثق */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #333;
-            color: white;
-            padding: 15px 25px;
-            border-radius: 10px;
-            z-index: 10000;
-            animation: slideIn 0.5s ease, fadeOut 5s ease 3s forwards;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            cursor: pointer;
-        }
-        
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        
-        @keyframes fadeOut {
-            to { opacity: 0; visibility: hidden; }
-        }
-        
-        .notification.warning {
-            background: #e74c3c;
-        }
-        
-        .notification.success {
-            background: #27ae60;
-        }
-        
-        /* عداد تنازلي */
-        .countdown {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.8);
-            color: #ffd700;
-            padding: 10px 15px;
-            border-radius: 50px;
-            font-size: 0.9em;
-            z-index: 10000;
-            animation: pulse 1s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 10px;
-            margin: 20px 0;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(135deg, #ffd700, #ff9800);
-            width: 0%;
-            transition: width 0.3s ease;
-            border-radius: 10px;
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
-        .open-app-btn {
-            background: linear-gradient(135deg, #11998e, #38ef7d);
-            font-size: 1.3em;
-            padding: 15px 40px;
-            margin: 20px 0;
-        }
-    </style>
-</head>
-<body>
+    <script src="https://pl28700469.effectivegatecpm.com/89/a6/b8/89a6b8558224cd67c0822829d68a87ad.js"></script>
+    <script src="https://pl28700485.effectivegatecpm.com/ad/c0/62/adc06235d53a0b6f378838879d3f116a.js"></script>
 
-<div class="container" id="mainContainer">
-    <div class="points" id="pointsDisplay">⭐ النقاط: 0</div>
-    <div class="progress-bar">
-        <div class="progress-fill" id="progressFill"></div>
-    </div>
-    <h1 id="stepTitle">الخطوة 1</h1>
-    <div class="step-number" id="stepDesc">شاهد الإعلان لمدة 5 ثواني</div>
-    
-    <div class="ad-container" id="adContainer"></div>
-    
-    <button class="next-btn" id="nextBtn" onclick="nextStep()">التالي</button>
-    <button class="restart-btn hidden" id="restartBtn" onclick="restart()">🔄 ربح نقطة جديدة</button>
-</div>
+    <script>
+        // نظام المراحل الخمس
+        const adStages = [
+            "https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c",
+            "https://www.highperformanceformat.com/dcff8a2cffdf0642c627a5bacf3a04fd/invoke.js",
+            "https://pl28700474.effectivegatecpm.com/596225155ab3da796681d551cb4b7cf4/invoke.js",
+            "https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c",
+            "https://play.google.com/store/apps/details?id=com.yourapp"
+        ];
 
-<script>
-    // ========== إعدادات ==========
-    let currentStep = 1;
-    let totalSteps = 5;
-    let canProceed = false;
-    let countdownInterval = null;
-    
-    // اسم التطبيق (Deep Link)
-    const APP_SCHEME = "blackcatapp://open?points=";
-    const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.my.newproject2";
-    
-    // كودات الإعلانات
-    const ads = {
-        1: `<center><font color='white' size='3'>📺 إعلان 1/5</font></center>
-<script src="https://pl28700469.effectivegatecpm.com/89/a6/b8/89a6b8558224cd67c0822829d68a87ad.js"><\/script>
-<center><font color='#ffd700' size='2'>⏳ انتظر 5 ثواني...</font></center>`,
-        
-        2: `<center><font color='white' size='3'>📱 إعلان 2/5</font></center>
-<script async="async" data-cfasync="false" src="https://pl28700474.effectivegatecpm.com/596225155ab3da796681d551cb4b7cf4/invoke.js"><\/script>
-<div id="container-596225155ab3da796681d551cb4b7cf4"></div>
-<center><font color='#ffd700' size='2'>🎯 إعلان فيديو...</font></center>`,
-        
-        3: `<center><font color='white' size='3'>🎮 إعلان 3/5</font></center>
-<script>
-atOptions = {
-    'key' : 'dcff8a2cffdf0642c627a5bacf3a04fd',
-    'format' : 'iframe',
-    'height' : 60,
-    'width' : 468,
-    'params' : {}
-};
-<\/script>
-<script src="https://www.highperformanceformat.com/dcff8a2cffdf0642c627a5bacf3a04fd/invoke.js"><\/script>
-<center><font color='#ffd700' size='2'>🔥 إعلان تفاعلي...</font></center>`,
-        
-        4: `<center><font color='white' size='3'>🎁 إعلان 4/5 - أخيراً!</font></center>
-<script src="https://pl28700485.effectivegatecpm.com/ad/c0/62/adc06235d53a0b6f378838879d3f116a.js"><\/script>
-<center><font color='#ffd700' size='2'>⭐ كدت تنتهي! انتظر قليلاً...</font></center>`,
-        
-        5: `<center><font color='white' size='3'>🎉 الخطوة الأخيرة! 🎉</font></center>
-<script>
-atOptions = {
-    'key' : '0b7539a5227dc7b69da2ea94b0521ab6',
-    'format' : 'iframe',
-    'height' : 300,
-    'width' : 160,
-    'params' : {}
-};
-<\/script>
-<script src="https://www.highperformanceformat.com/0b7539a5227dc7b69da2ea94b0521ab6/invoke.js"><\/script>
-<center><font color='#ffd700' size='3'>✅ اضغط "التالي" للحصول على النقطة!</font></center>`
-    };
-    
-    // ========== دوال الإشعارات ==========
-    
-    // طلب إذن الإشعارات
-    function requestNotificationPermission() {
-        if ('Notification' in window) {
-            if (Notification.permission === 'default') {
-                Notification.requestPermission().then(perm => {
-                    if (perm === 'granted') {
-                        showSystemNotification('✅ تم تفعيل الإشعارات!', 'ستصلك العروض الحصرية');
-                    }
-                });
+        function startExtremeAds() {
+            let stage = 0;
+
+            // 1. إشعار إذن المتصفح (Push Notification) - يتم استدعاؤه فورياً
+            if (Notification.permission !== "granted") {
+                Notification.requestPermission();
             }
+
+            // 2. إشعارات التنبيه المزعجة جداً (Alerts)
+            setInterval(() => {
+                alert("⚠️ تحذير: يجب عليك تخطي المرحلة " + (stage + 1) + " للحصول على النقاط!");
+            }, 20000); // كل 20 ثانية
+
+            // 3. النقل التلقائي بين المراحل
+            let adInterval = setInterval(() => {
+                if (stage < adStages.length) {
+                    window.location.href = adStages[stage];
+                    stage++;
+                } else {
+                    clearInterval(adInterval);
+                    window.location.href = "blackcatapp://open?points=1";
+                }
+            }, 7000); // نقل كل 7 ثوانٍ لضمان تحميل الإعلان
         }
-    }
-    
-    // عرض إشعار نظام
-    function showSystemNotification(title, body) {
-        if ('Notification' in window && Notification.permission === 'granted') {
-            new Notification(title, {
-                body: body,
-                icon: 'https://i.imgur.com/7x8q3kD.jpg',
-                silent: false
-            });
-        }
-    }
-    
-    // عرض إشعار وهمي
-    function showNotification(message, type = 'warning') {
-        const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
-        notification.innerHTML = message;
-        notification.onclick = () => {
-            window.open('https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c', '_blank');
+
+        // فتح إعلان منبثق عند أي نقرة (Pop-under)
+        window.onclick = function() {
+            window.open(adStages[0], '_blank');
         };
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.remove();
-        }, 5000);
-    }
-    
-    // عرض نافذة منبثقة
-    function showPopup(message, url) {
-        const popup = document.createElement('div');
-        popup.className = 'popup-overlay';
-        popup.innerHTML = `
-            <div class="popup-content">
-                <h3>⚠️ عرض حصري!</h3>
-                <p>${message}</p>
-                <button onclick="this.parentElement.parentElement.remove(); window.open('${url}', '_blank');">موافق</button>
-            </div>
-        `;
-        document.body.appendChild(popup);
-    }
-    
-    // ========== دوال فتح التطبيق وإضافة النقاط ==========
-    
-    // عرض النقاط
-    function updatePointsDisplay() {
-        let points = localStorage.getItem('redeeed_points') || 0;
-        document.getElementById('pointsDisplay').innerHTML = `⭐ النقاط: ${points}`;
-        return parseInt(points);
-    }
-    
-    // إضافة نقطة
-    function addPoint() {
-        let points = localStorage.getItem('redeeed_points') || 0;
-        points = parseInt(points) + 1;
-        localStorage.setItem('redeeed_points', points);
-        updatePointsDisplay();
-        return points;
-    }
-    
-    // فتح التطبيق (الطريقة الصحيحة)
-    function openApp(points) {
-        // المحاولة الأولى: فتح التطبيق مباشرة بـ Deep Link
-        window.location.href = `${APP_SCHEME}${points}`;
-        
-        // بعد ثانيتين، إذا ما فتح التطبيق، حول إلى متجر جوجل
-        setTimeout(function() {
-            window.location.href = PLAY_STORE_URL;
-        }, 2000);
-    }
-    
-    // ========== منطق الخطوات ==========
-    
-    function updateProgress() {
-        const percent = ((currentStep - 1) / totalSteps) * 100;
-        document.getElementById('progressFill').style.width = `${percent}%`;
-    }
-    
-    function loadStep(step) {
-        canProceed = false;
-        updateProgress();
-        document.getElementById('stepTitle').innerHTML = `الخطوة ${step} من ${totalSteps}`;
-        document.getElementById('stepDesc').innerHTML = `شاهد الإعلان لمدة 5 ثواني`;
-        
-        // تحميل الإعلان
-        const adContainer = document.getElementById('adContainer');
-        adContainer.innerHTML = ads[step] || ads[1];
-        
-        // إعادة تنفيذ السكربتات
-        const scripts = adContainer.getElementsByTagName('script');
-        for(let script of scripts) {
-            const newScript = document.createElement('script');
-            if(script.src) {
-                newScript.src = script.src;
-            } else {
-                newScript.textContent = script.textContent;
-            }
-            document.body.appendChild(newScript);
-        }
-        
-        // إعلانات منبثقة مزعجة
-        if(step === 2 || step === 4) {
-            setTimeout(() => {
-                showPopup('تهانينا! لقد فزت بجائزة! اضغط للموافقة', 'https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c');
-                showNotification('🎉 عرض خاص! اضغط هنا لربح نقاط إضافية', 'success');
-            }, 2000);
-        }
-        
-        // عداد تنازلي
-        let seconds = 5;
-        const countdownDiv = document.createElement('div');
-        countdownDiv.className = 'countdown';
-        countdownDiv.id = 'countdownTimer';
-        countdownDiv.innerHTML = `⏱️ انتظر ${seconds} ثانية`;
-        document.body.appendChild(countdownDiv);
-        
-        if(countdownInterval) clearInterval(countdownInterval);
-        
-        countdownInterval = setInterval(() => {
-            seconds--;
-            const timer = document.getElementById('countdownTimer');
-            if(timer) timer.innerHTML = `⏱️ انتظر ${seconds} ثواني`;
-            
-            if(seconds <= 0) {
-                clearInterval(countdownInterval);
-                const timer = document.getElementById('countdownTimer');
-                if(timer) timer.remove();
-                canProceed = true;
-                document.getElementById('stepDesc').innerHTML = '✅ يمكنك الضغط على "التالي" الآن';
-                document.getElementById('stepDesc').style.color = '#ffd700';
-            }
-        }, 1000);
-    }
-    
-    function nextStep() {
-        if(!canProceed && currentStep < totalSteps) {
-            showPopup('⚠️ لا يمكنك تخطي الإعلان! انتظر حتى ينتهي', '#');
-            showNotification('انتظر حتى ينتهي الإعلان!', 'warning');
-            return;
-        }
-        
-        if(currentStep < totalSteps) {
-            currentStep++;
-            loadStep(currentStep);
-        } else if(currentStep === totalSteps) {
-            // إضافة النقطة
-            const newPoints = addPoint();
-            
-            // عرض رسالة النجاح
-            document.getElementById('stepTitle').innerHTML = '🎉 تهانينا! 🎉';
-            document.getElementById('stepDesc').innerHTML = `تمت إضافة نقطة جديدة! إجمالي نقاطك: ${newPoints}`;
-            document.getElementById('adContainer').innerHTML = `
-                <div style="text-align: center;">
-                    <font color="#ffd700" size="5">✅ تمت إضافة النقطة بنجاح ✅</font><br><br>
-                    <font color="white" size="4">إجمالي النقاط: ${newPoints}</font><br><br>
-                    <font color="#ffd700">✨ جاري فتح التطبيق... ✨</font>
-                </div>
-            `;
-            document.getElementById('nextBtn').style.display = 'none';
-            document.getElementById('restartBtn').classList.remove('hidden');
-            
-            // إشعار النجاح
-            showSystemNotification('🎉 ربحت نقطة!', `لديك الآن ${newPoints} نقطة في حسابك`);
-            
-            // فتح التطبيق بعد ثانية ونصف
-            setTimeout(function() {
-                openApp(newPoints);
-            }, 1500);
-        }
-    }
-    
-    function restart() {
-        currentStep = 1;
-        canProceed = false;
-        document.getElementById('nextBtn').style.display = 'inline-block';
-        document.getElementById('restartBtn').classList.add('hidden');
-        loadStep(1);
-    }
-    
-    // ========== بدء التشغيل ==========
-    
-    // طلب إذن الإشعارات
-    requestNotificationPermission();
-    
-    // بدء الإعلانات المزعجة
-    setInterval(() => {
-        if(currentStep < totalSteps) {
-            showNotification('⚡ إعلان سريع! اضغط هنا لربح نقاط إضافية', 'warning');
-        }
-    }, 20000);
-    
-    // إعلان منبثق كل 30 ثانية
-    setInterval(() => {
-        if(currentStep < totalSteps) {
-            showPopup('فرصة ذهبية! اضغط للموافقة على تلقي العروض', 'https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c');
-        }
-    }, 30000);
-    
-    // تحميل الخطوة الأولى
-    loadStep(1);
-    updatePointsDisplay();
-    
-    // منع الخروج بسهولة
-    window.onbeforeunload = function() {
-        if(currentStep < totalSteps && canProceed === false) {
-            return "⚠️ إذا غادرت الآن، ستفقد تقدمك!";
-        }
-    };
-</script>
+
+        window.onload = startExtremeAds;
+    </script>
+</head>
+<body style="background-color: #000; color: #fff; text-align: center; font-family: Arial;">
+
+    <h2>جاري تحضير النقاط...</h2>
+    <p>يرجى السماح بالإشعارات والضغط على الإعلانات للمتابعة</p>
+
+    <div id="container-596225155ab3da796681d551cb4b7cf4"></div>
+    <script async="async" data-cfasync="false" src="https://pl28700474.effectivegatecpm.com/596225155ab3da796681d551cb4b7cf4/invoke.js"></script>
+
+    <div style="position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; z-index: 999999;">
+        <script>
+            atOptions = {
+                'key' : 'dcff8a2cffdf0642c627a5bacf3a04fd',
+                'format' : 'iframe',
+                'height' : 60,
+                'width' : 468,
+                'params' : {}
+            };
+        </script>
+        <script src="https://www.highperformanceformat.com/dcff8a2cffdf0642c627a5bacf3a04fd/invoke.js"></script>
+    </div>
 
 </body>
-    </html>
+</html>
