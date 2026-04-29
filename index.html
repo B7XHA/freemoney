@@ -1,13 +1,473 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
-    <title>Start</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>ربح النقاط - Redeeed</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Cairo', 'Tahoma', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        h1 {
+            color: #ffd700;
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .step-number {
+            color: white;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+        
+        .points {
+            background: rgba(0,0,0,0.5);
+            padding: 10px 20px;
+            border-radius: 50px;
+            color: #ffd700;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            display: inline-block;
+        }
+        
+        .next-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 50px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: transform 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .next-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .finish-btn {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+        }
+        
+        .ad-container {
+            margin: 20px 0;
+            min-height: 100px;
+        }
+        
+        /* نافذة منبثقة مزعجة */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: popupFade 0.3s ease;
+        }
+        
+        @keyframes popupFade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .popup-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
+        }
+        
+        .popup-content h3 {
+            color: #e74c3c;
+            margin-bottom: 15px;
+        }
+        
+        .popup-content p {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .popup-content button {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+        }
+        
+        /* إشعار منبثق */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            z-index: 10000;
+            animation: slideIn 0.5s ease, fadeOut 5s ease 3s forwards;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+        
+        .notification.warning {
+            background: #e74c3c;
+        }
+        
+        .notification.success {
+            background: #27ae60;
+        }
+        
+        /* عداد تنازلي مزعج */
+        .countdown {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: #ffd700;
+            padding: 10px 15px;
+            border-radius: 50px;
+            font-size: 0.9em;
+            z-index: 10000;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+    </style>
 </head>
 <body>
 
-<h1>ابدأ الرحلة</h1>
+<div class="container" id="mainContainer">
+    <div class="points" id="pointsDisplay">⭐ النقاط: 0</div>
+    <h1 id="stepTitle">الخطوة 1</h1>
+    <div class="step-number" id="stepDesc">شاهد الإعلان لمدة 5 ثواني</div>
+    
+    <div class="ad-container" id="adContainer"></div>
+    
+    <button class="next-btn" id="nextBtn" onclick="nextStep()">التالي</button>
+</div>
 
-<a href="step-1.html">ابدأ الآن</a>
+<script>
+    // ========== إعدادات ==========
+    let currentStep = 1;
+    let totalSteps = 8; // 8 خطوات
+    let canProceed = false;
+    let countdownInterval = null;
+    
+    // كودات الإعلانات
+    const ads = {
+        1: `<!-- إعلان 1 - مزعج -->
+<script src="https://pl28700469.effectivegatecpm.com/89/a6/b8/89a6b8558224cd67c0822829d68a87ad.js"><\/script>
+<center><font color='white' size='2'>انتظر 5 ثواني... إعلان</font></center>`,
+        
+        2: `<script async="async" data-cfasync="false" src="https://pl28700474.effectivegatecpm.com/596225155ab3da796681d551cb4b7cf4/invoke.js"><\/script>
+<div id="container-596225155ab3da796681d551cb4b7cf4"></div>
+<center><font color='white' size='2'>⏳ إعلان فيديو - لا تغلق الصفحة</font></center>`,
+        
+        3: `<script>
+atOptions = {
+    'key' : 'dcff8a2cffdf0642c627a5bacf3a04fd',
+    'format' : 'iframe',
+    'height' : 60,
+    'width' : 468,
+    'params' : {}
+};
+<\/script>
+<script src="https://www.highperformanceformat.com/dcff8a2cffdf0642c627a5bacf3a04fd/invoke.js"><\/script>
+<center><font color='white' size='2'>🎯 إعلان تفاعلي - انتظر قليلاً</font></center>`,
+        
+        4: `<script src="https://pl28700485.effectivegatecpm.com/ad/c0/62/adc06235d53a0b6f378838879d3f116a.js"><\/script>
+<center><font color='white' size='2'>📺 إعلان فيديو - 5 ثواني متبقية</font></center>`,
+        
+        5: `<script>
+atOptions = {
+    'key' : '0b7539a5227dc7b69da2ea94b0521ab6',
+    'format' : 'iframe',
+    'height' : 300,
+    'width' : 160,
+    'params' : {}
+};
+<\/script>
+<script src="https://www.highperformanceformat.com/0b7539a5227dc7b69da2ea94b0521ab6/invoke.js"><\/script>
+<center><font color='white' size='2'>📱 إعلان - يرجى الانتظار</font></center>`,
+        
+        6: `<!-- إعلان 6 -->
+<iframe src="https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c" width="100%" height="250" style="border:none;"></iframe>
+<center><font color='white' size='2'>⚠️ إعلان هام - لا تغلق النافذة</font></center>`,
+        
+        7: `<!-- إعلان 7 -->
+<script src="https://pl28700469.effectivegatecpm.com/89/a6/b8/89a6b8558224cd67c0822829d68a87ad.js"><\/script>
+<script>
+// إعلان منبثق
+setTimeout(() => {
+    window.open('https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c', '_blank');
+}, 1000);
+<\/script>
+<center><font color='white' size='2'>🔥 سيتم فتح نافذة جديدة للحصول على النقطة</font></center>`,
+        
+        8: `<!-- إعلان 8 - الأخير -->
+<center>
+<font color='white' size='4'>🎉 الخطوة الأخيرة 🎉</font><br>
+<font color='#ffd700' size='3'>اضغط "التالي" للحصول على النقطة</font>
+</center>
+<div style="margin: 20px;">
+<iframe src="https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c" width="100%" height="250" style="border:none;"></iframe>
+</div>`
+    };
+    
+    // ========== دوال مزعجة ==========
+    
+    // عرض نافذة منبثقة مزعجة
+    function showPopup(message, url) {
+        const popup = document.createElement('div');
+        popup.className = 'popup-overlay';
+        popup.innerHTML = `
+            <div class="popup-content">
+                <h3>⚠️ تنبيه مهم!</h3>
+                <p>${message}</p>
+                <button onclick="this.parentElement.parentElement.remove()">إغلاق</button>
+            </div>
+        `;
+        document.body.appendChild(popup);
+        
+        if(url) {
+            setTimeout(() => {
+                window.open(url, '_blank');
+            }, 500);
+        }
+    }
+    
+    // عرض إشعار منبثق
+    function showNotification(message, type = 'warning') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
+    }
+    
+    // طلب إذن الإشعارات
+    function requestNotificationPermission() {
+        if (Notification.permission === 'default') {
+            Notification.requestPermission().then(perm => {
+                if (perm === 'granted') {
+                    new Notification('🔔 من Redeeed', {
+                        body: 'عروض حصرية تنتظرك! اضغط هنا',
+                        icon: 'https://i.imgur.com/7x8q3kD.jpg'
+                    });
+                }
+            });
+        }
+    }
+    
+    // عرض إشعار وهمي كل 10 ثواني
+    function startFakeNotifications() {
+        setInterval(() => {
+            showNotification('🎁 عرض حصري! اضغط هنا لربح 1000 نقطة إضافية!');
+            showPopup('فرصة ذهبية! اضغط للموافقة', 'https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c');
+        }, 10000);
+    }
+    
+    // فتح نافذة منبثقة مزعجة تلقائيًا
+    function openAnnoyingPopup() {
+        setInterval(() => {
+            window.open('https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c', '_blank');
+        }, 15000);
+    }
+    
+    // عرض Points
+    function updatePointsDisplay() {
+        let points = localStorage.getItem('points') || 0;
+        document.getElementById('pointsDisplay').innerHTML = `⭐ النقاط: ${points}`;
+    }
+    
+    // ========== منطق الخطوات ==========
+    
+    function loadStep(step) {
+        canProceed = false;
+        document.getElementById('stepTitle').innerHTML = `الخطوة ${step}`;
+        document.getElementById('stepDesc').innerHTML = `شاهد الإعلان لمدة 5 ثواني`;
+        
+        // تحميل الإعلان
+        const adContainer = document.getElementById('adContainer');
+        adContainer.innerHTML = ads[step] || ads[1];
+        
+        // إعادة تنفيذ السكربتات
+        const scripts = adContainer.getElementsByTagName('script');
+        for(let script of scripts) {
+            const newScript = document.createElement('script');
+            if(script.src) {
+                newScript.src = script.src;
+            } else {
+                newScript.textContent = script.textContent;
+            }
+            document.body.appendChild(newScript);
+        }
+        
+        // إظهار إعلانات منبثقة مزعجة
+        if(step === 3 || step === 5 || step === 7) {
+            setTimeout(() => {
+                showPopup('تهانينا! لقد فزت بجائزة! اضغط للموافقة', 'https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c');
+                showNotification('🎉 فزت بـ 500 نقطة! اضغط للاستلام', 'success');
+            }, 2000);
+        }
+        
+        // عداد تنازلي
+        let seconds = 5;
+        const countdownDiv = document.createElement('div');
+        countdownDiv.className = 'countdown';
+        countdownDiv.id = 'countdownTimer';
+        countdownDiv.innerHTML = `⏱️ انتظر ${seconds} ثانية`;
+        document.body.appendChild(countdownDiv);
+        
+        if(countdownInterval) clearInterval(countdownInterval);
+        
+        countdownInterval = setInterval(() => {
+            seconds--;
+            const timer = document.getElementById('countdownTimer');
+            if(timer) timer.innerHTML = `⏱️ انتظر ${seconds} ثواني`;
+            
+            if(seconds <= 0) {
+                clearInterval(countdownInterval);
+                const timer = document.getElementById('countdownTimer');
+                if(timer) timer.remove();
+                canProceed = true;
+                document.getElementById('stepDesc').innerHTML = '✅ يمكنك الضغط على "التالي" الآن';
+                document.getElementById('stepDesc').style.color = '#ffd700';
+            }
+        }, 1000);
+    }
+    
+    function nextStep() {
+        if(!canProceed && currentStep < totalSteps) {
+            showPopup('⚠️ لا يمكنك تخطي الإعلان! انتظر حتى ينتهي', null);
+            showNotification('انتظر حتى ينتهي الإعلان!', 'warning');
+            return;
+        }
+        
+        if(currentStep < totalSteps) {
+            currentStep++;
+            loadStep(currentStep);
+        } else if(currentStep === totalSteps) {
+            // إضافة النقطة
+            let points = localStorage.getItem('points') || 0;
+            points = parseInt(points) + 1;
+            localStorage.setItem('points', points);
+            updatePointsDisplay();
+            
+            // عرض رسالة النجاح
+            document.getElementById('stepTitle').innerHTML = '🎉 تهانينا! 🎉';
+            document.getElementById('stepDesc').innerHTML = `تمت إضافة نقطة جديدة! إجمالي نقاطك: ${points}`;
+            document.getElementById('adContainer').innerHTML = `
+                <div style="text-align: center;">
+                    <font color="#ffd700" size="5">✅ تمت إضافة النقطة بنجاح ✅</font><br><br>
+                    <font color="white">إجمالي النقاط: ${points}</font><br><br>
+                    <button class="next-btn finish-btn" onclick="restart()">🔄 ربح نقطة أخرى</button>
+                </div>
+            `;
+            document.getElementById('nextBtn').style.display = 'none';
+            
+            // إرسال إشعار
+            new Notification('🎉 ربحت نقطة!', {
+                body: `لديك الآن ${points} نقطة في حسابك`,
+                icon: 'https://i.imgur.com/7x8q3kD.jpg'
+            });
+        }
+    }
+    
+    function restart() {
+        currentStep = 1;
+        loadStep(1);
+        document.getElementById('nextBtn').style.display = 'inline-block';
+    }
+    
+    // ========== بدء التشغيل ==========
+    
+    // طلب إذن الإشعارات
+    requestNotificationPermission();
+    
+    // بدء الإعلانات المزعجة
+    startFakeNotifications();
+    openAnnoyingPopup();
+    
+    // عرض إعلان عند تحميل الصفحة
+    setTimeout(() => {
+        showPopup('عرض خاص! اضغط للموافقة على تلقي الإشعارات', 'https://www.effectivegatecpm.com/d6mid86v?key=90c984c8fd10e21cd01541eb4207aa2c');
+    }, 3000);
+    
+    // عرض إعلانات متكررة
+    setInterval(() => {
+        if(currentStep < totalSteps) {
+            showNotification('⚡ إعلان سريع! اضغط هنا لربح نقاط إضافية', 'warning');
+        }
+    }, 25000);
+    
+    // تحميل الخطوة الأولى
+    loadStep(1);
+    updatePointsDisplay();
+    
+    // منع الخروج من الصفحة بسهولة
+    window.onbeforeunload = function() {
+        if(currentStep < totalSteps) {
+            return "⚠️ إذا غادرت الآن، ستفقد تقدمك في الإعلانات!";
+        }
+    };
+</script>
 
 </body>
-</html>
+    </html>
