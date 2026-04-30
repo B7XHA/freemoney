@@ -45,28 +45,28 @@ button {
 
 <div class="box">
     <h1>نظام تنبيه الزلازل</h1>
-    <p>سيتم إرسال إشعارات عند وجود زلازل (تجريبي)</p>
+    <p>سيتم إرسال إشعارات عند وجود زلازلنننننننن (تجريبي)</p>
     <button onclick="start()">تفعيل الإشعارات</button>
 </div>
 
 <script>
-// صورة الإشعار
 const imageUrl = "https://upload.wikimedia.org/wikipedia/commons/6/6e/Earthquake_damage.jpg";
-
-// رابط عند الضغط على الإشعار
 const openLink = "https://www.youtube.com";
 
 function start() {
-    if (Notification.permission !== "granted") {
-        Notification.requestPermission();
+    if (!("Notification" in window)) {
+        alert("المتصفح لا يدعم الإشعارات");
+        return;
     }
 
-    if (Notification.permission === "granted") {
-        alert("تم تفعيل الإشعارات");
-        startFakeAlerts();
-    } else {
-        alert("لازم تسمح بالإشعارات");
-    }
+    Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+            alert("تم تفعيل الإشعارات");
+            startFakeAlerts();
+        } else {
+            alert("لازم تسمح بالإشعارات");
+        }
+    });
 }
 
 function sendNotification() {
@@ -82,13 +82,11 @@ function sendNotification() {
 }
 
 function startFakeAlerts() {
-    // كل دقيقة (60000 ms)
+    sendNotification();
+
     setInterval(() => {
         sendNotification();
     }, 60000);
-
-    // إرسال أول إشعار فوراً للتجربة
-    sendNotification();
 }
 </script>
 
